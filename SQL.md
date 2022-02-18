@@ -8,7 +8,7 @@ mysql -u username -p (log in)
 
 use database;
 create table
-alter table name field
+alter table (name) (add,modify) (field)
 insert into (data i rows)
 describe table
 show databse
