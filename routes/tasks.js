@@ -1,4 +1,5 @@
 const express = require('express');
+const { response } = require('../app');
 const router = express.Router();
 const pool = require('../database');
 
@@ -72,12 +73,8 @@ router.get('/:id/delete', async (req, res, next) => {
     }
     await pool.promise()
         .query('DELETE FROM tasks WHERE id = ?', [id])
-        .then(([rows, fields]) => {
-            res.json({
-                tasks: {
-                    data: rows
-                }
-            });
+        .then((response) => {
+            res.redirect('/tasks');
         })
         .catch(err => {
             console.log(err);
@@ -91,21 +88,44 @@ router.get('/:id/delete', async (req, res, next) => {
 });
 router.post('/', async (req, res, next) => {
     const task = req.body.task;
-    //res.json[req.body];
+
+    /*if (task.length < 3) {
+        //res.render('tasks.njk', {
+        //    tasks: rows,
+        //    title: 'Tasks',
+        //    layout: 'layout.njk'
+        //});
+        res.status(400).json({
+            task: {
+                error: 'A task must have atleast 3 characters'
+            }
+        });
+    }*/
+
     await pool.promise()
         .query('INSERT INTO tasks (task) VALUES (?)', [task])
-        .then(([rows, fieds]) => {
-            res.json({
-                tasks: {
-                    data: rows
-                }
-            });
+        .then((response) => {
+            if (response[0].affectedRows == 1) {
+                res.redirect('/tasks');
+            } else {
+                res.status(400).json({
+                    task: {
+                        error: 'Invalid task'
+                    }
+                });
+            }
+            
+            //res.json({
+            //    tasks: {
+            //        data: rows
+            //    }
+            //});
         })
         .catch(err => {
             console.log(err);
             res.status(500).json({
                 tasks: {
-                    error: 'Error getting tasks'
+                    error: 'Invalid task'
                 }
             })
         });
